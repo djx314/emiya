@@ -61,7 +61,7 @@ object CustomSettings {
 
     sbtassembly.AssemblyPlugin.assemblySettings.++(
       Seq(
-        mainClass in assembly := Some("play.core.server.ProdServerStart")/*,
+        mainClass in assembly := Some("org.xarcher.emiya.HelloStageDemo")/*,
         assemblyMergeStrategy in assembly <<= (assemblyMergeStrategy in assembly) { old => {
           case "reference.conf" => MergeStrategy.concat
           case PathList("play", "reference-overrides.conf") => MergeStrategy.concat

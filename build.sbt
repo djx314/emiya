@@ -24,6 +24,9 @@ lazy val emiya = (project in file("."))
 ).settings(
 
   libraryDependencies ++= Dependencies.ammoniteRepl,
+  libraryDependencies += "net.coobird" % "thumbnailator" % "0.4.8",
+  libraryDependencies += "org.scalafx" %% "scalafx" % "8.0.60-R9",
+  fork := true,
 
   {
     if (org.xarcher.sbt.OSName.isWindows)
