@@ -57,3 +57,5 @@ lazy val emiya = (project in file("."))
 
 )
 .settings(CustomSettings.customSettings: _*)
+.enablePlugins(JDKPackagerPlugin)
+.enablePlugins(WindowsPlugin)

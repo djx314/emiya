@@ -49,7 +49,7 @@ object Emiya extends JFXApp {
     }
 
     val removeButton: Button = new Button {
-      text = "叉"
+      text = "删"
       onAction = new EventHandler[ActionEvent] {
         override def handle(event: ActionEvent): Unit = {
           pictureList.remove(current)

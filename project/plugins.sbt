@@ -7,18 +7,12 @@ resolvers ++= Seq(
 
 externalResolvers := Resolver.withDefaultResolvers(resolvers.value, mavenCentral = false)
 
-addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.5.1")
-
 addSbtPlugin("com.typesafe.sbt" % "sbt-git" % "0.8.5")
-
-addSbtPlugin("com.typesafe.sbt" % "sbt-coffeescript" % "1.0.0")
-
-addSbtPlugin("com.typesafe.sbt" % "sbt-less" % "1.1.1")
 
 addSbtPlugin("com.typesafe.sbteclipse" % "sbteclipse-plugin" % "4.0.0")
 
-addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "0.13.0")
+addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "0.14.3")
 
-addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "1.0.4")
+addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "1.1.0-RC3")
 //play 已经有官方解决方案，请看文档
 //addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.7.5")
