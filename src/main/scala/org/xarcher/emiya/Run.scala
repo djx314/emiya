@@ -109,8 +109,10 @@ object HelloStageDemo extends JFXApp {
     title.value = "装逼神器 0.0.2"
     height = 600
     width = 600
-    focused.onChange { (_, _, _) =>
-      writeClipboard
+    focused.onChange { (_, _, newValue) =>
+      if (! newValue) {
+        writeClipboard
+      }
     }
 
     scene = sceneS setTo new Scene {
