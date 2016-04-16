@@ -2,8 +2,7 @@ package org.xarcher.emiya
 
 import java.awt.{Color, Font, Toolkit}
 import java.awt.datatransfer.{DataFlavor, Transferable, UnsupportedFlavorException}
-import java.awt.image.BufferedImage
-import java.io.File
+import java.io.InputStream
 import javax.imageio.ImageIO
 
 import net.coobird.thumbnailator.Thumbnails
@@ -12,9 +11,9 @@ import net.coobird.thumbnailator.geometry.Positions
 
 object CopyPic {
 
-  def pic(content: String): Unit = {
+  def pic(inputStream: InputStream)(content: String): Unit = {
 
-    val aaa = ImageIO.read(new File("D:/临时文件/aa.jpg"))
+    val aaa = ImageIO.read(inputStream)
     val targetWidth = aaa.getWidth
     val targetHeight = aaa.getHeight
     val bbb = Thumbnails.of(aaa).size(targetWidth, targetHeight)

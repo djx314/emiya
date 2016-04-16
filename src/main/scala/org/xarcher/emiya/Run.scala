@@ -1,16 +1,18 @@
 package org.xarcher.emiya
 
-import java.io.FileInputStream
-import javafx.event.EventHandler
+import java.io.{File, FileInputStream}
+import javafx.event.{ActionEvent, EventHandler}
 import javafx.scene.input.{DragEvent, MouseEvent, TransferMode}
 
+import scala.collection.mutable.ListBuffer
 import scalafx.Includes._
 import scalafx.application.JFXApp
-import scalafx.geometry.{Insets, Pos}
+import scalafx.beans.property.BooleanProperty
+import scalafx.collections.ObservableBuffer
 import scalafx.scene.Scene
+import scalafx.scene.control.Button
 import scalafx.scene.image.{Image, ImageView}
 import scalafx.scene.layout._
-import scalafx.scene.paint.Color
 
 object HelloStageDemo extends JFXApp {
 
@@ -29,6 +31,53 @@ object HelloStageDemo extends JFXApp {
 
   }
 
+  def writeClipboard: Unit = {
+    scala.collection.JavaConversions.iterableAsScalaIterable(pictureList).toList.find(_.isSelected.value).foreach {
+      s =>
+        CopyPic.pic(new FileInputStream(s.file))(field.get.text.value)
+    }
+  }
+
+  case class SelectPicture(file: File) {
+    val current = this
+
+    val isSelected = BooleanProperty(false)
+
+    val pictureImage: Image = new Image(new FileInputStream(file))
+    val imageView: ImageView = new ImageView {
+      image = pictureImage
+    }
+
+    val removeButton: Button = new Button {
+      text = "叉"
+      onAction = new EventHandler[ActionEvent] {
+        override def handle(event: ActionEvent): Unit = {
+          pictureList.remove(current)
+        }
+      }
+    }
+    val boxContent: VBox = new VBox {
+      style = "-fx-alignment: center;"
+      children = new HBox {
+        style <== when (isSelected) choose
+          """-fx-border-color: grey; -fx-border-width: 5; -fx-border-style: dashed;""" otherwise
+          """-fx-border-color: white; -fx-border-width: 5; -fx-border-style: dashed;"""
+        children = imageView
+        onMouseClicked = new EventHandler[MouseEvent] {
+          override def handle(event: MouseEvent): Unit = {
+            scala.collection.JavaConversions.iterableAsScalaIterable(pictureList).toList.foreach { s =>
+              if (s == current) {
+                s.isSelected.set(true)
+              } else if (s.isSelected.value == true) {
+                s.isSelected.set(false)
+              }
+            }
+          }
+        }
+      } :: removeButton :: Nil
+    }
+  }
+
   val field = VarModel.empty[scalafx.scene.control.TextField]
   val stageS = VarModel.empty[JFXApp.PrimaryStage]
   val sceneS = VarModel.empty[Scene]
@@ -36,13 +85,37 @@ object HelloStageDemo extends JFXApp {
   val pictureContent = VarModel.empty[HBox]
   val inputContent = VarModel.empty[VBox]
 
+  def refreshWidth = {
+    val autalWidth: Double = pictureList.toList.map(_.pictureImage.getWidth + 10d).reduceOption(_ + _).getOrElse(0d) + 16
+    val setWidth = Math.max(autalWidth, 300)
+    stageS.get.minWidth = setWidth
+    stageS.get.maxWidth = setWidth
+  }
+
+  val pictureList = ObservableBuffer.apply(ListBuffer.empty[SelectPicture])
+  pictureList.onChange { (s: ObservableBuffer[SelectPicture], t: Seq[ObservableBuffer.Change]) =>
+    t.foreach {
+      case ObservableBuffer.Add(position, addList: Traversable[SelectPicture] @unchecked) =>
+        pictureContent.get.children.addAll(addList.toList.map(_.boxContent: javafx.scene.layout.VBox): _*)
+        refreshWidth
+      case ObservableBuffer.Remove(position, removeList: Traversable[SelectPicture] @unchecked) =>
+        pictureContent.get.children.removeAll(removeList.toList.map(_.boxContent: javafx.scene.layout.VBox): _*)
+        refreshWidth
+      case _ =>
+    }
+  }
+
   stage = stageS setTo new JFXApp.PrimaryStage {
-    title.value = "装逼神器 0.0.1"
-    width = 300
+    title.value = "装逼神器 0.0.2"
     height = 600
+    width = 600
+    focused.onChange { (_, _, _) =>
+      writeClipboard
+    }
 
     scene = sceneS setTo new Scene {
       content = parentBox setTo new VBox {
+        fillWidth = true
         children = List(
           pictureContent setTo new HBox {
             onDragOver = new EventHandler[DragEvent] {
@@ -58,13 +131,15 @@ object HelloStageDemo extends JFXApp {
                 val fileList = scala.collection.JavaConversions.iterableAsScalaIterable(db.getFiles).toList
                 if (! fileList.isEmpty) {
                   success = true
-                  val imageList = fileList.map { s =>
-                    import ImageView._
-                    new ImageView {
-                      image = new Image(new FileInputStream(s))
-                    }: javafx.scene.image.ImageView
+
+                  val modelsToAdd = fileList.map(SelectPicture(_)).filter { s =>
+                    (! s.pictureImage.isError) &&
+                      pictureList.toList.forall { t =>
+                        s.file.getAbsolutePath != t.file.getAbsolutePath
+                      }
                   }
-                  event.getTarget.asInstanceOf[javafx.scene.layout.HBox].children.addAll(imageList: _*)
+                  pictureList.addAll(modelsToAdd: _*)
+
                 }
                 event.setDropCompleted(success)
                 event.consume()
@@ -73,13 +148,11 @@ object HelloStageDemo extends JFXApp {
             children = Nil
           },
           inputContent setTo new VBox {
-            style = "-fx-background-color: #336699;"
+            style = "-fx-background-color: #336699; -fx-alignment: center; -fx-fill-width: false;"
             children = field setTo new scalafx.scene.control.TextField {
-              alignment = Pos.Center
-              text = "22"
-              text.onChange((_, _, newText) => {
-                CopyPic.pic(newText)
-              })
+              style = "-fx-alignment: center;"
+              prefWidth = 300
+              text = "开始装逼"
               onMouseClicked = new EventHandler[MouseEvent] {
                 override def handle(event: MouseEvent): Unit = {
                   text = ""
@@ -94,7 +167,6 @@ object HelloStageDemo extends JFXApp {
 
   pictureContent.get.prefHeight <== parentBox.get.height * 0.7
   inputContent.get.prefHeight <== parentBox.get.height * 0.3
-  field.get.translateY <== inputContent.get.height / 2 - field.get.height / 2
   parentBox.get.prefHeight <== sceneS.get.height
   parentBox.get.prefWidth <== sceneS.get.width
 
