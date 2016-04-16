@@ -14,7 +14,7 @@ import scalafx.scene.control.Button
 import scalafx.scene.image.{Image, ImageView}
 import scalafx.scene.layout._
 
-object HelloStageDemo extends JFXApp {
+object Emiya extends JFXApp {
 
   object VarModel {
 
