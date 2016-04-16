@@ -2,6 +2,7 @@ package org.xarcher.emiya
 
 import java.awt.{Color, Font, Toolkit}
 import java.awt.datatransfer.{DataFlavor, Transferable, UnsupportedFlavorException}
+import java.awt.image.BufferedImage
 import java.io.File
 import javax.imageio.ImageIO
 
@@ -13,7 +14,7 @@ object CopyPic {
 
   def pic(content: String): Unit = {
 
-    val aaa = ImageIO.read(new File("D:/临时文件/aa.jpg"))
+    val aaa = ImageIO.read(new File("/home/djx314/soft/idea-IC-145.258.11/bin/idea.png"))
     val targetWidth = aaa.getWidth
     val targetHeight = aaa.getHeight
     val bbb = Thumbnails.of(aaa).size(targetWidth, targetHeight)
@@ -33,23 +34,27 @@ object CopyPic {
     val trans = new Transferable {
 
       override def getTransferDataFlavors(): Array[DataFlavor] = {
+        println(Array[DataFlavor](DataFlavor.imageFlavor))
         Array[DataFlavor](DataFlavor.imageFlavor)
       }
 
       override def isDataFlavorSupported(flavor: DataFlavor): Boolean = {
+        println(DataFlavor.imageFlavor.equals(flavor))
         DataFlavor.imageFlavor.equals(flavor)
       }
 
       override def getTransferData(flavor: DataFlavor): AnyRef = {
-        if(isDataFlavorSupported(flavor))
+        if(isDataFlavorSupported(flavor)) {
+          println(1111)
           captionedImage
-        else
+        } else
           throw new UnsupportedFlavorException(flavor)
       }
 
     }
 
-    Toolkit.getDefaultToolkit().getSystemClipboard().setContents(trans, null)
+    //Toolkit.getDefaultToolkit().getSystemClipboard().setContents(trans, null)
+    println(Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null).getTransferData(DataFlavor.imageFlavor).asInstanceOf[BufferedImage])
 
   }
 

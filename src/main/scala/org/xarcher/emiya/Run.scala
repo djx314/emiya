@@ -11,7 +11,7 @@ import scalafx.scene.layout._
 
 object HelloStageDemo extends JFXApp {
   stage = new JFXApp.PrimaryStage {
-    title.value = "装逼神器"
+    title.value = "装逼神器 0.0.1"
     width = 300
     height = 100
 
