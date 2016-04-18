@@ -2,7 +2,7 @@ package org.xarcher.emiya
 
 import java.awt.{Color, Font, Toolkit}
 import java.awt.datatransfer.{DataFlavor, Transferable, UnsupportedFlavorException}
-import java.io.InputStream
+import java.io.{File, FileInputStream, InputStream}
 import javax.imageio.ImageIO
 
 import net.coobird.thumbnailator.Thumbnails
@@ -11,12 +11,14 @@ import net.coobird.thumbnailator.geometry.Positions
 
 object CopyPic {
 
-  def pic(inputStream: InputStream)(content: String): Unit = {
+  def pic(file: File)(content: String): Unit = {
 
+    var inputStream: InputStream = null
     try {
+      inputStream = new FileInputStream(file)
       val aaa = ImageIO.read(inputStream)
-      val targetWidth = aaa.getWidth
-      val targetHeight = aaa.getHeight
+      val targetWidth = Math.min(400, aaa.getWidth)
+      val targetHeight = if (aaa.getWidth <= 400) aaa.getHeight else (aaa.getHeight.toDouble / aaa.getWidth.toDouble * targetWidth.toDouble).toInt
       val bbb = Thumbnails.of(aaa).size(targetWidth, targetHeight)
 
       // Set up the caption properties
@@ -51,6 +53,8 @@ object CopyPic {
       }
 
       Toolkit.getDefaultToolkit().getSystemClipboard().setContents(trans, null)
+    } catch {
+      case e: Throwable => e.printStackTrace
     } finally {
       try {
         inputStream.close

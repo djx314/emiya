@@ -35,7 +35,7 @@ object Emiya extends JFXApp {
   def writeClipboard: Unit = {
     scala.collection.JavaConversions.iterableAsScalaIterable(pictureList).toList.find(_.isSelected.value).foreach {
       s =>
-        CopyPic.pic(new FileInputStream(s.file))(field.get.text.value)
+        CopyPic.pic(s.file)(field.get.text.value)
     }
   }
 
@@ -57,6 +57,8 @@ object Emiya extends JFXApp {
     }
     val imageView: ImageView = new ImageView {
       image = pictureImage
+      fitWidth <== min (pictureImage.width, 400)
+      fitHeight <== when (pictureImage.width > 400) choose (this.fitWidth * pictureImage.height.toDouble / pictureImage.width.toDouble) otherwise (pictureImage.height)
     }
 
     val removeButton: Button = new Button {
@@ -97,7 +99,7 @@ object Emiya extends JFXApp {
   val inputContent = VarModel.empty[VBox]
 
   def refreshWidth = {
-    val autalWidth: Double = pictureList.map(_.pictureImage.getWidth + 10d).reduceOption(_ + _).getOrElse(0d) + 16
+    val autalWidth: Double = pictureList.map(_.imageView.fitWidth.value + 10d).reduceOption(_ + _).getOrElse(0d) + 16
     val setWidth = Math.max(autalWidth, 300)
     stageS.get.minWidth = setWidth
     stageS.get.maxWidth = setWidth
@@ -120,6 +122,7 @@ object Emiya extends JFXApp {
     title.value = "装逼神器 0.0.3"
     height = 600
     width = 600
+    //minWidth <== pictureList.map(_.imageView.fitWidth.value + 10d).reduceOption(_ + _).getOrElse(0d) + 16
     focused.onChange { (_, _, newValue) =>
       if (! newValue) {
         writeClipboard
