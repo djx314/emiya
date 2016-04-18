@@ -44,17 +44,14 @@ object Emiya extends JFXApp {
 
     val isSelected = BooleanProperty(false)
 
-    private var inStream: InputStream = _
-
     val pictureImage: Image = {
+      var inStream: InputStream = null
       try {
         inStream = new FileInputStream(file)
         new Image(inStream)
       } finally {
-        try {
+        Try {
           inStream.close
-        } catch {
-          case _: Exception =>
         }
       }
     }
