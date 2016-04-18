@@ -1,10 +1,11 @@
 package org.xarcher.emiya
 
-import java.io.{File, FileInputStream}
+import java.io.{File, FileInputStream, InputStream}
 import javafx.event.{ActionEvent, EventHandler}
 import javafx.scene.input.{DragEvent, MouseEvent, TransferMode}
 
 import scala.collection.mutable.ListBuffer
+import scala.util.Try
 import scalafx.Includes._
 import scalafx.application.JFXApp
 import scalafx.beans.property.BooleanProperty
@@ -43,7 +44,20 @@ object Emiya extends JFXApp {
 
     val isSelected = BooleanProperty(false)
 
-    val pictureImage: Image = new Image(new FileInputStream(file))
+    private var inStream: InputStream = _
+
+    val pictureImage: Image = {
+      try {
+        inStream = new FileInputStream(file)
+        new Image(inStream)
+      } finally {
+        try {
+          inStream.close
+        } catch {
+          case _: Exception =>
+        }
+      }
+    }
     val imageView: ImageView = new ImageView {
       image = pictureImage
     }
@@ -52,7 +66,7 @@ object Emiya extends JFXApp {
       text = "删"
       onAction = new EventHandler[ActionEvent] {
         override def handle(event: ActionEvent): Unit = {
-          pictureList.remove(current)
+          pictureList -= current
         }
       }
     }
@@ -86,7 +100,7 @@ object Emiya extends JFXApp {
   val inputContent = VarModel.empty[VBox]
 
   def refreshWidth = {
-    val autalWidth: Double = pictureList.toList.map(_.pictureImage.getWidth + 10d).reduceOption(_ + _).getOrElse(0d) + 16
+    val autalWidth: Double = pictureList.map(_.pictureImage.getWidth + 10d).reduceOption(_ + _).getOrElse(0d) + 16
     val setWidth = Math.max(autalWidth, 300)
     stageS.get.minWidth = setWidth
     stageS.get.maxWidth = setWidth
@@ -106,12 +120,14 @@ object Emiya extends JFXApp {
   }
 
   stage = stageS setTo new JFXApp.PrimaryStage {
-    title.value = "装逼神器 0.0.2"
+    title.value = "装逼神器 0.0.3"
     height = 600
     width = 600
     focused.onChange { (_, _, newValue) =>
       if (! newValue) {
         writeClipboard
+      } else {
+        pictureList --= pictureList.filterNot(_.file.exists)
       }
     }
 
@@ -140,7 +156,7 @@ object Emiya extends JFXApp {
                         s.file.getAbsolutePath != t.file.getAbsolutePath
                       }
                   }
-                  pictureList.addAll(modelsToAdd: _*)
+                  pictureList ++= modelsToAdd
 
                 }
                 event.setDropCompleted(success)

@@ -20,7 +20,7 @@ val gitInit = taskKey[String]("miao")
 lazy val emiya = (project in file("."))
 .settings(
   name := "emiya",
-  version := "0.0.2"
+  version := "0.0.3"
 ).settings(
 
   libraryDependencies ++= Dependencies.ammoniteRepl,
