@@ -1,18 +1,20 @@
 package org.xarcher.emiya
 
 import java.io.{File, FileInputStream, InputStream}
-import javafx.event.{ActionEvent, EventHandler}
-import javafx.scene.input.{DragEvent, MouseEvent, TransferMode}
 
 import scala.collection.mutable.ListBuffer
+import scala.language.postfixOps
 import scala.util.Try
+import scalafx.scene.input.{DragEvent, TransferMode}
 import scalafx.Includes._
 import scalafx.application.JFXApp
 import scalafx.beans.property.BooleanProperty
 import scalafx.collections.ObservableBuffer
+import scalafx.event.ActionEvent
 import scalafx.scene.Scene
 import scalafx.scene.control.Button
 import scalafx.scene.image.{Image, ImageView}
+import scalafx.scene.input.MouseEvent
 import scalafx.scene.layout._
 
 object Emiya extends JFXApp {
@@ -63,10 +65,10 @@ object Emiya extends JFXApp {
 
     val removeButton: Button = new Button {
       text = "删"
-      onAction = new EventHandler[ActionEvent] {
-        override def handle(event: ActionEvent): Unit = {
+      handleEvent(ActionEvent.Action) {
+        (e: ActionEvent) =>
           pictureList -= current
-        }
+          ()
       }
     }
     val boxContent: VBox = new VBox {
@@ -76,14 +78,12 @@ object Emiya extends JFXApp {
           """-fx-border-color: grey; -fx-border-width: 5; -fx-border-style: dashed;""" otherwise
           """-fx-border-color: white; -fx-border-width: 5; -fx-border-style: dashed;"""
         children = imageView
-        onMouseClicked = new EventHandler[MouseEvent] {
-          override def handle(event: MouseEvent): Unit = {
-            scala.collection.JavaConversions.iterableAsScalaIterable(pictureList).toList.foreach { s =>
-              if (s == current) {
-                s.isSelected.set(true)
-              } else if (s.isSelected.value == true) {
-                s.isSelected.set(false)
-              }
+        handleEvent(MouseEvent.MouseClicked) {
+          e: MouseEvent => scala.collection.JavaConversions.iterableAsScalaIterable(pictureList).toList.foreach { s =>
+            if (s == current) {
+              s.isSelected.set(true)
+            } else if (s.isSelected.value == true) {
+              s.isSelected.set(false)
             }
           }
         }
@@ -124,11 +124,10 @@ object Emiya extends JFXApp {
     width = 600
     //minWidth <== pictureList.map(_.imageView.fitWidth.value + 10d).reduceOption(_ + _).getOrElse(0d) + 16
     focused.onChange { (_, _, newValue) =>
-      if (! newValue) {
+      if (! newValue)
         writeClipboard
-      } else {
+      else
         pictureList --= pictureList.filterNot(_.file.exists)
-      }
     }
 
     scene = sceneS setTo new Scene {
@@ -136,20 +135,18 @@ object Emiya extends JFXApp {
         fillWidth = true
         children = List(
           pictureContent setTo new HBox {
-            onDragOver = new EventHandler[DragEvent] {
-              override def handle(event: DragEvent) {
-                event.acceptTransferModes(TransferMode.MOVE)
-                event.consume()
-              }
+            handleEvent(DragEvent.DragOver) {
+              e: DragEvent =>
+                e.acceptTransferModes(TransferMode.MOVE)
+                e.consume()
             }
-            onDragDropped = new EventHandler[DragEvent] {
-              def handle(event: DragEvent) {
-                val db = event.getDragboard()
+            handleEvent(DragEvent.DragDropped) {
+              e: DragEvent =>
+                val db = e.dragboard
                 var success = false
-                val fileList = scala.collection.JavaConversions.iterableAsScalaIterable(db.getFiles).toList
+                val fileList = db.files
                 if (! fileList.isEmpty) {
                   success = true
-
                   val modelsToAdd = fileList.map(SelectPicture(_)).filter { s =>
                     (! s.pictureImage.isError) &&
                       pictureList.toList.forall { t =>
@@ -157,24 +154,22 @@ object Emiya extends JFXApp {
                       }
                   }
                   pictureList ++= modelsToAdd
-
                 }
-                event.setDropCompleted(success)
-                event.consume()
-              }
+                e dropCompleted = success
+                e.consume
             }
             children = Nil
           },
+
           inputContent setTo new VBox {
             style = "-fx-background-color: #336699; -fx-alignment: center; -fx-fill-width: false;"
             children = field setTo new scalafx.scene.control.TextField {
               style = "-fx-alignment: center;"
               prefWidth = 300
               text = "开始装逼"
-              onMouseClicked = new EventHandler[MouseEvent] {
-                override def handle(event: MouseEvent): Unit = {
+              handleEvent(MouseEvent.MouseClicked) {
+                e: MouseEvent =>
                   text = ""
-                }
               }
             }
           }
