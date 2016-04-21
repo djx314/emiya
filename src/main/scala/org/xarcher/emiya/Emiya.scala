@@ -34,12 +34,11 @@ object Emiya extends JFXApp {
 
   }
 
-  def writeClipboard: Unit = {
-    scala.collection.JavaConversions.iterableAsScalaIterable(pictureList).toList.find(_.isSelected.value).foreach {
+  def writeClipboard: Unit =
+    pictureList.find(_.isSelected.value).foreach {
       s =>
         CopyPic.pic(s.file)(field.get.text.value)
     }
-  }
 
   case class SelectPicture(file: File) {
     val current = this
