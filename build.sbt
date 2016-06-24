@@ -57,7 +57,7 @@ lazy val emiya = (project in file("."))
   },
 
   autoGit := {
-    org.xarcher.jfxgit.Jfxgit.main(Array(new File("./").absolutePath))
+    org.xarcher.jfxgit.Jfxgit.main(Array("."))
     "提交完毕"
   }
 
