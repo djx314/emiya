@@ -16,6 +16,7 @@ val printlnDo = println("""
 )
 
 val gitInit = taskKey[String]("miao")
+val autoGit = taskKey[String]("wang")
 
 lazy val emiya = (project in file("."))
 .settings(
@@ -53,6 +54,11 @@ lazy val emiya = (project in file("."))
     }
     "执行 git 初始化操作成功"
 
+  },
+
+  autoGit := {
+    org.xarcher.jfxgit.Jfxgit.main(Array(new File("./").absolutePath))
+    "提交完毕"
   }
 
 )
