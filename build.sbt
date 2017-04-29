@@ -54,11 +54,6 @@ lazy val emiya = (project in file("."))
     }
     "执行 git 初始化操作成功"
 
-  },
-
-  autoGit := {
-    org.xarcher.jfxgit.Jfxgit.main(Array("."))
-    "提交完毕"
   }
 
 )
