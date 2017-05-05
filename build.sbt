@@ -24,9 +24,9 @@ lazy val emiya = (project in file("."))
   version := "0.0.3"
 ).settings(
 
-  libraryDependencies ++= Dependencies.ammoniteRepl,
+  //libraryDependencies ++= Dependencies.ammoniteRepl,
   libraryDependencies += "net.coobird" % "thumbnailator" % "0.4.8",
-  libraryDependencies += "org.scalafx" %% "scalafx" % "8.0.60-R9",
+  libraryDependencies += "org.scalafx" %% "scalafx" % "8.0.102-R11",
   fork := true,
 
   {

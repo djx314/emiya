@@ -1,11 +1,11 @@
 package org.xarcher.emiya
 
-import java.io.{File, FileInputStream, InputStream}
+import java.io.{ File, FileInputStream, InputStream }
 
 import scala.collection.mutable.ListBuffer
 import scala.language.postfixOps
 import scala.util.Try
-import scalafx.scene.input.{DragEvent, TransferMode}
+import scalafx.scene.input.{ DragEvent, TransferMode }
 import scalafx.Includes._
 import scalafx.application.JFXApp
 import scalafx.beans.property.BooleanProperty
@@ -13,7 +13,7 @@ import scalafx.collections.ObservableBuffer
 import scalafx.event.ActionEvent
 import scalafx.scene.Scene
 import scalafx.scene.control.Button
-import scalafx.scene.image.{Image, ImageView}
+import scalafx.scene.image.{ Image, ImageView }
 import scalafx.scene.input.MouseEvent
 import scalafx.scene.layout._
 
@@ -22,15 +22,15 @@ object Emiya extends JFXApp {
   object VarModel {
 
     trait AbsVar[T] {
-        var model: T = _
-        def setTo(model1: T): T = {
-          model = model1
-          model
-        }
-        def get: T = model
+      var model: T = _
+      def setTo(model1: T): T = {
+        model = model1
+        model
+      }
+      def get: T = model
     }
 
-    def empty[T] = new AbsVar[T] { }
+    def empty[T] = new AbsVar[T] {}
 
   }
 
@@ -58,8 +58,8 @@ object Emiya extends JFXApp {
     }
     val imageView: ImageView = new ImageView {
       image = pictureImage
-      fitWidth <== min (pictureImage.width, 400)
-      fitHeight <== when (pictureImage.width > 400) choose (this.fitWidth * pictureImage.height.toDouble / pictureImage.width.toDouble) otherwise (pictureImage.height)
+      fitWidth <== min(pictureImage.width, 400)
+      fitHeight <== when(pictureImage.width > 400) choose (this.fitWidth * pictureImage.height.toDouble / pictureImage.width.toDouble) otherwise (pictureImage.height)
     }
 
     val removeButton: Button = new Button {
@@ -73,18 +73,19 @@ object Emiya extends JFXApp {
     val boxContent: VBox = new VBox {
       style = "-fx-alignment: center;"
       children = new HBox {
-        style <== when (isSelected) choose
+        style <== when(isSelected) choose
           """-fx-border-color: grey; -fx-border-width: 5; -fx-border-style: dashed;""" otherwise
           """-fx-border-color: white; -fx-border-width: 5; -fx-border-style: dashed;"""
         children = imageView
         handleEvent(MouseEvent.MouseClicked) {
-          e: MouseEvent => scala.collection.JavaConversions.iterableAsScalaIterable(pictureList).toList.foreach { s =>
-            if (s == current) {
-              s.isSelected.set(true)
-            } else if (s.isSelected.value == true) {
-              s.isSelected.set(false)
+          e: MouseEvent =>
+            scala.collection.JavaConverters.iterableAsScalaIterable(pictureList).toList.foreach { s =>
+              if (s == current) {
+                s.isSelected.set(true)
+              } else if (s.isSelected.value == true) {
+                s.isSelected.set(false)
+              }
             }
-          }
         }
       } :: removeButton :: Nil
     }
@@ -105,7 +106,7 @@ object Emiya extends JFXApp {
   }
 
   val pictureList = ObservableBuffer.apply(ListBuffer.empty[SelectPicture])
-  pictureList.onChange { (s: ObservableBuffer[SelectPicture], t: Seq[ObservableBuffer.Change]) =>
+  pictureList.onChange { (s: ObservableBuffer[SelectPicture], t: Seq[ObservableBuffer.Change[SelectPicture]]) =>
     t.foreach {
       case ObservableBuffer.Add(position, addList: Traversable[SelectPicture] @unchecked) =>
         pictureContent.get.children.addAll(addList.toList.map(_.boxContent: javafx.scene.layout.VBox): _*)
@@ -123,7 +124,7 @@ object Emiya extends JFXApp {
     width = 600
     //minWidth <== pictureList.map(_.imageView.fitWidth.value + 10d).reduceOption(_ + _).getOrElse(0d) + 16
     focused.onChange { (_, _, newValue) =>
-      if (! newValue)
+      if (!newValue)
         writeClipboard
       else
         pictureList --= pictureList.filterNot(_.file.exists)
@@ -136,7 +137,7 @@ object Emiya extends JFXApp {
           pictureContent setTo new HBox {
             handleEvent(DragEvent.DragOver) {
               e: DragEvent =>
-                e.acceptTransferModes(TransferMode.MOVE)
+                e.acceptTransferModes(TransferMode.Move)
                 e.consume()
             }
             handleEvent(DragEvent.DragDropped) {
@@ -144,10 +145,10 @@ object Emiya extends JFXApp {
                 val db = e.dragboard
                 var success = false
                 val fileList = db.files
-                if (! fileList.isEmpty) {
+                if (!fileList.isEmpty) {
                   success = true
                   val modelsToAdd = fileList.map(SelectPicture(_)).filter { s =>
-                    (! s.pictureImage.isError) &&
+                    (!s.pictureImage.isError) &&
                       pictureList.toList.forall { t =>
                         s.file.getAbsolutePath != t.file.getAbsolutePath
                       }

@@ -1,17 +1,17 @@
 package org.xarcher.emiya
 
-import java.awt.{Color, Font, Toolkit}
-import java.awt.datatransfer.{DataFlavor, Transferable, UnsupportedFlavorException}
+import java.awt.{ Color, Font, Toolkit }
+import java.awt.datatransfer.{ DataFlavor, Transferable, UnsupportedFlavorException }
 import java.io._
 import javax.imageio.ImageIO
 import javax.imageio.stream.MemoryCacheImageInputStream
 
 import net.coobird.thumbnailator.Thumbnails
-import net.coobird.thumbnailator.filters.{Canvas, Caption}
+import net.coobird.thumbnailator.filters.{ Canvas, Caption }
 import net.coobird.thumbnailator.geometry.Positions
 
 import scalafx.scene.image.Image
-import scalafx.scene.input.{Clipboard, ClipboardContent}
+import scalafx.scene.input.{ Clipboard, ClipboardContent }
 
 object CopyPic {
 

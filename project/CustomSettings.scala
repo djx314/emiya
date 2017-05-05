@@ -10,7 +10,7 @@ object CustomSettings {
   
   def scalaSettings =
     Seq(
-      scalaVersion := "2.11.8",
+      scalaVersion := "2.12.2",
       scalacOptions ++= Seq("-feature", "-deprecation")
     )
   
