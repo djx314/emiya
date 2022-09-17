@@ -1,6 +1,4 @@
 import org.xarcher.sbt.CustomSettings
-import org.xarcher.sbt.Dependencies
-import org.xarcher.sbt.Helpers._
 
 import sbt._
 import sbt.Keys._
@@ -15,8 +13,17 @@ val printlnDo = println("""
 """.stripMargin
 )
 
-val gitInit = taskKey[String]("miao")
-val autoGit = taskKey[String]("wang")
+libraryDependencies ++= {
+  // Determine OS version of JavaFX binaries
+  lazy val osName = System.getProperty("os.name") match {
+    case n if n.startsWith("Linux") => "linux"
+    case n if n.startsWith("Mac") => "mac"
+    case n if n.startsWith("Windows") => "win"
+    case _ => throw new Exception("Unknown platform!")
+  }
+  Seq("base", "controls", "fxml", "graphics", "media", "swing", "web")
+    .map(m => "org.openjfx" % s"javafx-$m" % "11" classifier osName)
+}
 
 lazy val emiya = (project in file("."))
 .settings(
@@ -25,36 +32,9 @@ lazy val emiya = (project in file("."))
 ).settings(
 
   //libraryDependencies ++= Dependencies.ammoniteRepl,
-  libraryDependencies += "net.coobird" % "thumbnailator" % "0.4.8",
-  libraryDependencies += "org.scalafx" %% "scalafx" % "8.0.102-R11",
-  fork := true,
-
-  {
-    if (org.xarcher.sbt.OSName.isWindows)
-      initialCommands in (Test, console) += s"""ammonite.repl.Main.run("repl.frontEnd() = ammonite.repl.frontend.FrontEnd.JLineWindows");"""
-    else if (org.xarcher.sbt.OSName.isLinux)
-      initialCommands in (Test, console) += s"""ammonite.repl.Main.run("");"""
-    else
-      initialCommands in (Test, console) += s""""""
-  },
-
-  gitInit := {
-
-    val runtime = java.lang.Runtime.getRuntime
-
-    import scala.io.Source
-    if (org.xarcher.sbt.OSName.isWindows) {
-      val commandLine = Source.fromFile("./gitUpdate").getLines.map(s => s.replaceAll("\\r\\n", "")).mkString(" & ")
-      val process = runtime.exec(List("cmd", "/c", commandLine).toArray)
-      execCommonLine(process)
-    } else {
-      val commandLine = Source.fromFile("./gitUpdate").getLines.map(s => s.replaceAll("\\r\\n", "")).mkString(" ; ")
-      val process = runtime.exec(List("sh", "-c", commandLine).toArray)
-      execCommonLine(process)
-    }
-    "执行 git 初始化操作成功"
-
-  }
+  libraryDependencies += "net.coobird" % "thumbnailator" % "0.4.17",
+  libraryDependencies += "org.scalafx" %% "scalafx" % "18.0.2-R29",
+  fork := true
 
 )
 .settings(CustomSettings.customSettings: _*)
